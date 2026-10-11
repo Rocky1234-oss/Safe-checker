@@ -1,40 +1,10 @@
-import 'dartd:io';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
-// Apnar Gemini API Key ekhane ekbar boshalei shob feature-e kaj korbe
-const String myGeminiApiKey = 'Import os
-from google import genai
-
-client = genai.Client(
-    api_key=os.environ.get("GEMINI_API_KEY"),
-)
-
-tools = [
-    {
-        'type': 'google_search',
-    },
-]
-
-generation_config = {
-    'temperature': 1,
-    'max_output_tokens': 65536,
-    'top_p': 0.95,
-    'thinking_level': 'high',
-}
-
-interaction = client.interactions.create(
-    model='models/gemini-3-flash-preview',
-    input="""INSERT_INPUT_HERE""",
-    tools=tools,
-    generation_config=generation_config,
-)
-
-print(interaction.steps[-1])
-
-
-Tomi daw bosiye';
+ন
+const String myGeminiApiKey = 'Rocky bro';
 
 void main() {
   runApp(const SmartCheckerApp());
@@ -46,7 +16,7 @@ class SmartCheckerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false
       title: 'Smart Checker',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
@@ -292,4 +262,150 @@ class _FakeRealVerifierPageState extends State<FakeRealVerifierPage> {
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children:
+            children: [
+              TextField(
+                controller: _inputController,
+                decoration: const InputDecoration(
+                  labelText: 'Paste Link, Product Details or Text',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.link),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _pickImage,
+                      icon: const Icon(Icons.image),
+                      label: Text(_imageFile == null ? 'Attach Image' : 'Image Selected'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _verifyAuthenticity(image: _imageFile),
+                      icon: const Icon(Icons.verified),
+                      label: const Text('Verify Now'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                constraints: const BoxConstraints(minHeight: 150),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.amber.shade300),
+                ),
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : Text(
+                        _verificationResult,
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------- 3RD FEATURE: IDENTITY LOOKUP ----------------
+class IdentityLookupPage extends StatefulWidget {
+  const IdentityLookupPage({super.key});
+
+  @override
+  State<IdentityLookupPage> createState() => _IdentityLookupPageState();
+}
+
+class _IdentityLookupPageState extends State<IdentityLookupPage> {
+  final TextEditingController _queryController = TextEditingController();
+  bool _isLoading = false;
+  String _lookupResult = 'Enter Phone Number, FB Profile, or Username to analyze potential risk.';
+
+  Future<void> _analyzeIdentity() async {
+    final query = _queryController.text.trim();
+    if (query.isEmpty) {
+      setState(() {
+        _lookupResult = 'Please enter a number or username.';
+      });
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final model = GenerativeModel(
+        model: 'gemini-1.5-flash',
+        apiKey: myGeminiApiKey,
+      );
+
+      final prompt = "Act as a cybersecurity assistant. Analyze this query: '$query'. "
+          "Provide safety tips, risk evaluation (High/Medium/Low), and common scam patterns associated with this type of contact or username format in Bangladesh/worldwide.";
+
+      final response = await model.generateContent([Content.text(prompt)]);
+
+      setState(() {
+        _lookupResult = response.text ?? 'No safety analysis available.';
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _lookupResult = 'Error performing lookup: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Identity & Scam Lookup')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: _queryController,
+                decoration: const InputDecoration(
+                  labelText: 'Phone Number / Username / Profile Link',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.search),
+                ),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: _analyzeIdentity,
+                icon: const Icon(Icons.security),
+                label: const Text('Check Risk Level'),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                constraints: const BoxConstraints(minHeight: 180),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : Text(
+                        _lookupResult,
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
