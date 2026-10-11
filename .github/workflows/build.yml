@@ -26,10 +26,6 @@ jobs:
 
       - name: Build APK
         run: |
-          PUBSPEC_PATH=$(find . -name "pubspec.yaml" -not -path "*/.*" | head -n 1)
-          PROJECT_DIR=$(dirname "$PUBSPEC_PATH")
-          echo "Found project at $PROJECT_DIR"
-          cd "$PROJECT_DIR"
           flutter pub get
           flutter build apk --debug
 
@@ -37,4 +33,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: "**/build/app/outputs/flutter-apk/*.apk"
+          path: "build/app/outputs/flutter-apk/*.apk"
