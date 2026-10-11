@@ -2,12 +2,15 @@ workflows:
   android-workflow:
     name: Android Workflow
     max_build_duration: 60
+    working_directory: .
     scripts:
       - name: Set up Flutter
         script: |
+          cd $(find . -maxdepth 2 -name "pubspec.yaml" -exec dirname {} \;)
           flutter packages pub get
       - name: Build APK
         script: |
+          cd $(find . -maxdepth 2 -name "pubspec.yaml" -exec dirname {} \;)
           flutter build apk --debug
     artifacts:
-      - build/**/outputs/**/*.apk
+      - "**/build/**/outputs/**/*.apk"
