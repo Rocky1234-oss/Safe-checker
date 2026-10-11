@@ -24,18 +24,19 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Find and Build
+      - name: Find pubspec location
+        id: locate
         run: |
-          # Find the directory containing pubspec.yaml
-          PUB_DIR=$(find . -name "pubspec.yaml" -not -path "*/.*" -exec dirname {} \; | head -n 1)
-          if [ -z "$PUB_DIR" ]; then
-            echo "Error: pubspec.yaml not found!"
-            exit 1
-          fi
-          echo "Found project directory: $PUB_DIR"
-          cd "$PUB_DIR"
-          flutter pub get
-          flutter build apk --debug
+          DIR=$(dirname $(find . -name "pubspec.yaml" -not -path "*/.*" | head -n 1))
+          echo "dir=$DIR" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies
+        working-directory: ${{ steps.locate.outputs.dir }}
+        run: flutter pub get
+
+      - name: Build APK
+        working-directory: ${{ steps.locate.outputs.dir }}
+        run: flutter build apk --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
