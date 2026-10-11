@@ -24,11 +24,16 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Build APK
+      - name: Find and Build
         run: |
-          TARGET_DIR=$(find . -maxdepth 3 -name "pubspec.yaml" -not -path "*/.*" -exec dirname {} \; | head -n 1)
-          echo "Found pubspec.yaml in: $TARGET_DIR"
-          cd "$TARGET_DIR"
+          # Find the directory containing pubspec.yaml
+          PUB_DIR=$(find . -name "pubspec.yaml" -not -path "*/.*" -exec dirname {} \; | head -n 1)
+          if [ -z "$PUB_DIR" ]; then
+            echo "Error: pubspec.yaml not found!"
+            exit 1
+          fi
+          echo "Found project directory: $PUB_DIR"
+          cd "$PUB_DIR"
           flutter pub get
           flutter build apk --debug
 
