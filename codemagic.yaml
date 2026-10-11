@@ -2,7 +2,7 @@ workflows:
   android-workflow:
     name: Android Workflow
     max_build_duration: 60
-    working_directory: .
+    instance_type: linux_x2
     scripts:
       - name: Set up Flutter
         script: |
