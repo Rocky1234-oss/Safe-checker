@@ -1,7 +1,40 @@
-import 'dart:io';
+import 'dartd:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+
+// Apnar Gemini API Key ekhane ekbar boshalei shob feature-e kaj korbe
+const String myGeminiApiKey = 'Import os
+from google import genai
+
+client = genai.Client(
+    api_key=os.environ.get("GEMINI_API_KEY"),
+)
+
+tools = [
+    {
+        'type': 'google_search',
+    },
+]
+
+generation_config = {
+    'temperature': 1,
+    'max_output_tokens': 65536,
+    'top_p': 0.95,
+    'thinking_level': 'high',
+}
+
+interaction = client.interactions.create(
+    model='models/gemini-3-flash-preview',
+    input="""INSERT_INPUT_HERE""",
+    tools=tools,
+    generation_config=generation_config,
+)
+
+print(interaction.steps[-1])
+
+
+Tomi daw bosiye';
 
 void main() {
   runApp(const SmartCheckerApp());
@@ -37,6 +70,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
   final List<Widget> _pages = const [
     ObjectScannerPage(),
     FakeRealVerifierPage(),
+    IdentityLookupPage(),
   ];
 
   @override
@@ -45,6 +79,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
+        type: BottomNavigationBarType.fixed,
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
@@ -53,11 +88,15 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.qr_code_scanner),
-            label: 'Object Scanner',
+            label: 'Object Scan',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.verified_user_outlined),
-            label: 'Fake / Real Check',
+            label: 'Fake/Real',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_search),
+            label: 'Identity Lookup',
           ),
         ],
       ),
@@ -77,7 +116,6 @@ class _ObjectScannerPageState extends State<ObjectScannerPage> {
   File? _imageFile;
   bool _isLoading = false;
   String _resultText = 'Take or pick an image of a product.';
-  final String _apiKey = 'YOUR_GEMINI_API_KEY';
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(ImageSource source) async {
@@ -96,7 +134,7 @@ class _ObjectScannerPageState extends State<ObjectScannerPage> {
     try {
       final model = GenerativeModel(
         model: 'gemini-1.5-flash',
-        apiKey: _apiKey,
+        apiKey: myGeminiApiKey,
       );
       final imageBytes = await image.readAsBytes();
       final prompt = TextPart('Identify what object is in this image and mention its estimated market price in BDT.');
@@ -187,7 +225,6 @@ class _FakeRealVerifierPageState extends State<FakeRealVerifierPage> {
   bool _isLoading = false;
   String _verificationResult = 'Enter link, text or upload product image to verify if it is Authentic or Fake.';
 
-  final String _apiKey = 'YOUR_GEMINI_API_KEY';
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
@@ -214,7 +251,7 @@ class _FakeRealVerifierPageState extends State<FakeRealVerifierPage> {
     try {
       final model = GenerativeModel(
         model: 'gemini-1.5-flash',
-        apiKey: _apiKey,
+        apiKey: myGeminiApiKey,
       );
 
       List<Part> parts = [];
@@ -255,55 +292,4 @@ class _FakeRealVerifierPageState extends State<FakeRealVerifierPage> {
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextField(
-                controller: _inputController,
-                decoration: const InputDecoration(
-                  labelText: 'Paste Link, Product Details or Text',
-                  border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.link),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _pickImage,
-                      icon: const Icon(Icons.image),
-                      label: Text(_imageFile == null ? 'Attach Image' : 'Image Selected'),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _verifyAuthenticity(image: _imageFile),
-                      icon: const Icon(Icons.verified),
-                      label: const Text('Verify Now'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16),
-                minHeight: 150,
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amber.shade300),
-                ),
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : Text(
-                        _verificationResult,
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                      ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+            children:
