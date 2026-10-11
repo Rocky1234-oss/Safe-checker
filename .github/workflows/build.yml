@@ -24,17 +24,10 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Locate and Build Flutter Project
+      - name: Check Directory and Build
         run: |
-          # Find the directory where pubspec.yaml resides
-          PUB_FILE=$(find . -name "pubspec.yaml" -not -path "*/.*" | head -n 1)
-          if [ -z "$PUB_FILE" ]; then
-            echo "Error: pubspec.yaml not found anywhere in the repository!"
-            exit 1
-          fi
-          SUB_DIR=$(dirname "$PUB_FILE")
-          echo "Found project root inside: $SUB_DIR"
-          cd "$SUB_DIR"
+          pwd
+          ls -la
           flutter pub get
           flutter build apk --debug
 
@@ -42,4 +35,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: "**/build/app/outputs/flutter-apk/*.apk"
+          path: build/app/outputs/flutter-apk/*.apk
