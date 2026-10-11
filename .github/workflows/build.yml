@@ -24,14 +24,18 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Build APK
-        run: flutter build apk --debug
+      - name: Build APK in subfolder
+        run: |
+          # Find directory containing pubspec.yaml and build inside it
+          PUBSPEC_FILE=$(find . -name "pubspec.yaml" -not -path "*/.*" | head -n 1)
+          PROJECT_DIR=$(dirname "$PUBSPEC_FILE")
+          echo "Building in directory: $PROJECT_DIR"
+          cd "$PROJECT_DIR"
+          flutter pub get
+          flutter build apk --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: build/app/outputs/flutter-apk/*.apk
+          path: "**/build/app/outputs/flutter-apk/*.apk"
