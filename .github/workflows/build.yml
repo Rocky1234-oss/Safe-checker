@@ -24,22 +24,14 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Find pubspec location
-        id: locate
-        run: |
-          DIR=$(dirname $(find . -name "pubspec.yaml" -not -path "*/.*" | head -n 1))
-          echo "dir=$DIR" >> $GITHUB_OUTPUT
-
       - name: Install dependencies
-        working-directory: ${{ steps.locate.outputs.dir }}
         run: flutter pub get
 
       - name: Build APK
-        working-directory: ${{ steps.locate.outputs.dir }}
         run: flutter build apk --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: "**/build/app/outputs/flutter-apk/*.apk"
+          path: build/app/outputs/flutter-apk/*.apk
